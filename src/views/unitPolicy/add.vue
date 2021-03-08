@@ -1,8 +1,8 @@
 <template>
-  <div id="addGeneralPolicy">
+  <div id="addUnitPolicy">
     <div class="page-header">
       <p class="page-path">
-        政策设置<span class="slashline">/</span>通用政策设置<span
+        政策设置<span class="slashline">/</span>单位政策设置<span
           class="slashline"
           >/</span
         >政策详情
@@ -23,26 +23,23 @@
           >
             <el-row :gutter="30">
               <el-col :span="8">
+                <el-form-item label="所属单位">
+                  <el-select v-model="basicInfoForm.unit" placeholder="请选择">
+                    <el-option
+                      :label="item.name"
+                      :value="item.value"
+                      v-for="item in unitList"
+                      :key="item.value"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
                 <el-form-item label="政策名称">
                   <el-input
                     v-model="basicInfoForm.policyName"
                     placeholder="请输入"
                   ></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="所属地区">
-                  <el-select
-                    v-model="basicInfoForm.region"
-                    placeholder="请选择"
-                  >
-                    <el-option
-                      :label="item.name"
-                      :value="item.value"
-                      v-for="item in regionList"
-                      :key="item.value"
-                    ></el-option>
-                  </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
@@ -70,14 +67,38 @@
                   </el-date-picker>
                 </el-form-item>
               </el-col>
-              <el-col :span="8">
+            </el-row>
+          </el-form>
+        </el-collapse-item>
+        <el-collapse-item name="2">
+          <template slot="title">
+            <div class="basic-info modify-info">变更信息</div>
+          </template>
+          <el-form
+            :model="modifyInfoForm"
+            label-position="top"
+            ref="modifyInfoForm"
+            class="modify-info-form"
+          >
+            <el-row :gutter="0">
+              <el-col :span="24">
+                <el-form-item label="变更说明">
+                  <el-input
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入"
+                    v-model="modifyInfoForm.describe"
+                  >
+                  </el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="0">
+              <el-col :span="24">
                 <el-form-item label="协议附件">
                   <el-button type="default" icon="el-icon-upload2"
                     >上传文件</el-button
                   >
-                  <p style="color: #999">
-                    支持拓展名：.rar .zip .doc .docx .pdf .jpg...
-                  </p>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -341,7 +362,7 @@
         </el-tabs>
       </div>
       <div class="bottom-btn-group">
-        <el-button @click="returnGeneralPolicyList">取消</el-button>
+        <el-button @click="returnUnitPolicyList">取消</el-button>
         <el-button type="primary">保存</el-button>
       </div>
     </div>
@@ -354,13 +375,12 @@ export default {
   components: {},
   data: function () {
     return {
-      activeNames: ["1"],
+      activeNames: ["1", "2"],
       basicInfoForm: {
+        unit: "",
         policyName: "",
-        region: "",
         type: "",
         effectiveTime: "",
-        file: "",
       },
       participateTypeList: [
         // 根据城市维护的参保类型list
@@ -373,17 +393,21 @@ export default {
           value: 1,
         },
       ],
-      regionList: [
-        // 所属地区list
+      unitList: [
+        // 所属单位list
         {
-          name: "region1",
+          name: "unit1",
           value: 0,
         },
         {
-          name: "region2",
+          name: "unit2",
           value: 1,
         },
       ],
+      modifyInfoForm: {
+        describe: "",
+        file: "",
+      },
       activeCard: "正常",
       normalPolicyData: [
         // 正常--政策信息表
@@ -467,8 +491,8 @@ export default {
       let index = obj.$index;
       this.makeupPolicyData.splice(index, 1);
     },
-    returnGeneralPolicyList() {
-      this.$router.push("/generalPolicy");
+    returnUnitPolicyList() {
+      this.$router.push("/unitPolicy");
     },
     inputUnitRatio(val, obj) {
       obj.row.unitRatio = val.replace(/[^\d]/g, "");
@@ -483,7 +507,7 @@ export default {
 
 <style src="@/assets/public.css"></style>
 <style scoped>
-#addGeneralPolicy {
+#addUnitPolicy {
   padding: 20px;
 }
 .basic-info {
@@ -497,7 +521,8 @@ export default {
 .el-collapse {
   border-top: 0;
 }
-.basic-info-form {
+.basic-info-form,
+.modify-info-form {
   padding: 20px 20px 0;
 }
 .basic-info-form .el-select {

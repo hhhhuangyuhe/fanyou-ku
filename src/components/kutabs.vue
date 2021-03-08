@@ -47,6 +47,7 @@ export default {
   flex-wrap: nowrap;
   align-items: center;
   border-bottom: 1px solid #e9e9e9;
+  overflow-x: auto;
 }
 .ku-tabs-container .ku-tab {
   height: 46px;
@@ -56,6 +57,8 @@ export default {
   cursor: pointer;
   box-sizing: border-box;
   padding: 0 14px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .ku-tabs-container .ku-tab:hover {
   color: #1890ff;

@@ -15,7 +15,7 @@
         ref="filtersform"
       >
         <el-row :gutter="16">
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="开户单位名称：">
               <el-input
                 v-model="filters.accountName"
@@ -23,7 +23,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="申请编号：">
               <el-input
                 v-model="filters.applyCode"
@@ -31,7 +31,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="开户类型：">
               <el-select v-model="filters.applyType" placeholder="请选择">
                 <el-option label="社保户" value="socialSecurity"></el-option>
@@ -39,13 +39,13 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-button type="primary">查询</el-button>
             <el-button type="default">重置</el-button>
           </el-col>
         </el-row>
         <el-row :gutter="16">
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="所属客户：">
               <el-select v-model="filters.client" placeholder="请选择">
                 <el-option label="客户1" value="client1"></el-option>
@@ -53,7 +53,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item label="开户网点：">
               <el-input
                 v-model="filters.openNet"
@@ -85,17 +85,17 @@
         style="margin: 32px 0 30px"
       >
         <el-table-column type="selection" width="48"> </el-table-column>
-        <el-table-column label="申请编号" prop="applyCode"> </el-table-column>
+        <el-table-column label="申请编号" prop="applyCode" width="150"></el-table-column>
         <el-table-column label="状态" prop="status"> </el-table-column>
-        <el-table-column label="反馈结果说明" prop="responseText">
+        <el-table-column label="反馈结果说明" prop="responseText" width="150">
         </el-table-column>
-        <el-table-column label="状态变更时间" prop="stateChangeTime">
+        <el-table-column label="状态变更时间" prop="stateChangeTime" width="120">
         </el-table-column>
-        <el-table-column label="单位名称" prop="companyName"> </el-table-column>
+        <el-table-column label="单位名称" prop="companyName" width="180"></el-table-column>
         <el-table-column label="开户类型" prop="accountType"></el-table-column>
         <el-table-column label="所属客户" prop="client"></el-table-column>
-        <el-table-column label="开户网点" prop="openNet"></el-table-column>
-        <el-table-column label="开户人员信息">
+        <el-table-column label="开户网点" prop="openNet" width="130"></el-table-column>
+        <el-table-column label="开户人员信息" width="120">
           <template slot-scope="scope">
             <el-button
               type="default"
@@ -104,7 +104,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column label="开户资料">
+        <el-table-column label="开户资料" width="120">
           <template slot-scope="scope">
             <el-button
               type="default"
@@ -116,16 +116,17 @@
         <el-table-column
           label="业务申报时间"
           prop="applyTime"
+          width="150"
         ></el-table-column>
         <el-table-column label="是否托管" prop="isHosting"></el-table-column>
-        <el-table-column label="资料邮寄往来">
+        <el-table-column label="资料邮寄往来" width="120">
           <template slot-scope="scope">
             <el-button type="default" @click="InformationMailing(scope.row)"
               >查看详情</el-button
             >
           </template>
         </el-table-column>
-        <el-table-column label="备注" prop="mark"></el-table-column>
+        <el-table-column label="备注" prop="mark" width="120"></el-table-column>
       </el-table>
       <el-pagination
         background

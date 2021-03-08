@@ -1,12 +1,16 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import { Button, Input, Row, Col, Table, TableColumn, Switch, Message, MessageBox, Loading, Pagination, Form, FormItem, Radio, RadioGroup, Select, Option, Cascader, Tabs, TabPane, Dialog, Collapse, CollapseItem, DatePicker } from 'element-ui';
+import api from './api/install'
+import { Button, Input, InputNumber, Row, Col, Table, TableColumn, Switch, Message, MessageBox, Loading, Pagination, Form, FormItem, Radio, RadioGroup, Select, Option, Cascader, Tabs, TabPane, Dialog, Collapse, CollapseItem, DatePicker } from 'element-ui';
 
 Vue.config.productionTip = false;
 
+Vue.use(api)
+
 Vue.use(Button)
 Vue.use(Input)
+Vue.use(InputNumber)
 Vue.use(Row)
 Vue.use(Col)
 Vue.use(Table)

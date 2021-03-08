@@ -282,6 +282,10 @@ export default {
     goPolicyDetail(row) {
       // 查看政策详情
       console.log(row);
+      this.$router.push({
+        path: "/generalPolicy/detail",
+        params: row,
+      });
     },
     handleSizeChange(pageSize) {
       // 每页条数改变
@@ -302,6 +306,18 @@ export default {
         });
         return;
       }
+      if (selection == undefined || selection.length > 1) {
+        this.$message({
+          message: "请选择1条需要处理的数据",
+          type: "warning",
+          showClose: true,
+        });
+        return;
+      }
+      this.$router.push({
+        path: "/generalPolicy/edit",
+        params: selection,
+      });
     },
     delData() {
       // 删除操作
@@ -422,6 +438,18 @@ export default {
       }
       // api
     },
+    async testApi() {
+      // 这里用try catch包裹，请求失败的时候就执行catch里的
+      try {
+        let res = await this.$api.NewsIndexData.NewsIndexData();
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+  },
+  mounted() {
+    this.testApi();
   },
 };
 </script>
