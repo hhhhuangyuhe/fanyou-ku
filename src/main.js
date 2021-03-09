@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import api from './api/install'
-import { Button, Input, InputNumber, Row, Col, Table, TableColumn, Switch, Message, MessageBox, Loading, Pagination, Form, FormItem, Radio, RadioGroup, Select, Option, Cascader, Tabs, TabPane, Dialog, Collapse, CollapseItem, DatePicker } from 'element-ui';
+import { Button, Input, InputNumber, Row, Col, Table, TableColumn, Switch, Message, MessageBox, Loading, Pagination, Form, FormItem, Radio, RadioGroup, Select, Option, Cascader, Tabs, TabPane, Dialog, Collapse, CollapseItem, DatePicker, Timeline, TimelineItem, Upload } from 'element-ui';
 
 Vue.config.productionTip = false;
 
@@ -30,6 +30,9 @@ Vue.use(Dialog)
 Vue.use(Collapse)
 Vue.use(CollapseItem)
 Vue.use(DatePicker)
+Vue.use(Timeline)
+Vue.use(TimelineItem)
+Vue.use(Upload)
 
 Vue.prototype.$ELEMENT = { size: 'small' };
 Vue.prototype.$confirm = MessageBox.confirm;
