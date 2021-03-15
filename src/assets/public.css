@@ -36,3 +36,6 @@
   margin: 30px auto 20px;
   text-align: center;
 }
+.el-input.is-disabled .el-input__inner{
+  color: #333;
+}

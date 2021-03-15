@@ -14,7 +14,7 @@ http.defaults.headers["Cache-Control"] = "no-cache";
 // 添加请求拦截器
 http.interceptors.request.use(config => {
     if (config.method === 'post' || config.method === 'put') {
-        config.data = JSON.stringify(config.data)
+        // config.data = JSON.stringify(config.data)
     } else if (config.method === 'get') {
         // 给GET 请求后追加时间戳
         let symbol = config.url.indexOf('?') >= 0 ? '&' : '?'

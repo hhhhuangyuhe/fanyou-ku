@@ -17,17 +17,18 @@
           :model="basicform"
           label-width="140px"
           class="basicform"
+          :rules="basicformRules"
         >
-          <el-form-item label="网点地区：">
+          <el-form-item label="网点地区：" prop="region">
             <el-cascader
               v-model="basicform.region"
               :options="regionOptions"
             ></el-cascader>
           </el-form-item>
-          <el-form-item label="网点名称：">
+          <el-form-item label="网点名称：" prop="name">
             <el-input v-model="basicform.name" disabled></el-input>
           </el-form-item>
-          <el-form-item label="网点负责人：">
+          <el-form-item label="网点负责人：" prop="leader">
             <el-input
               v-model="basicform.leader"
               placeholder="请输入"
@@ -40,7 +41,14 @@
               <el-radio label="是"></el-radio>
             </el-radio-group>
             <div class="form-inline-group">
-              <el-form-item>
+              <el-form-item
+                prop="socialsecurity"
+                :rules="
+                  basicform.hasinsurer == '是'
+                    ? basicformRules.socialsecurity
+                    : [{ required: false }]
+                "
+              >
                 <span class="text">社保</span>
                 <el-input
                   v-model="basicform.socialsecurity"
@@ -50,7 +58,14 @@
                 ></el-input>
                 <span class="text">人</span>
               </el-form-item>
-              <el-form-item>
+              <el-form-item
+                prop="providentfund"
+                :rules="
+                  basicform.hasinsurer == '是'
+                    ? basicformRules.providentfund
+                    : [{ required: false }]
+                "
+              >
                 <span class="text">公积金</span>
                 <el-input
                   v-model="basicform.providentfund"
@@ -62,11 +77,69 @@
               </el-form-item>
             </div>
           </el-form-item>
-          <el-form-item label="收件地址：">
+          <el-form-item label="收件地址：" prop="address">
             <el-input
               type="textarea"
               v-model="basicform.address"
               placeholder="请输入收件人、电话号码和详细地址"
+              maxlength="200"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="公积金比例设置：">
+            <div
+              class="form-inline-group"
+              style="margin-left: 0; margin-bottom: 14px"
+              v-for="(item, index) in basicform.providentfundRatio"
+              :key="index"
+            >
+              <el-form-item
+                :prop="'providentfundRatio.' + index + '.personnel'"
+                :rules="{
+                  required: true,
+                  message: '请输入个人缴纳比例',
+                  trigger: 'blur',
+                }"
+              >
+                <el-input
+                  v-model="item.personnel"
+                  placeholder="个人缴纳比例（%）"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                style="margin-left: 10px"
+                :prop="'providentfundRatio.' + index + '.enterprice'"
+                :rules="{
+                  required: true,
+                  message: '请输入单位缴纳比例',
+                  trigger: 'blur',
+                }"
+              >
+                <el-input
+                  v-model="item.enterprice"
+                  placeholder="单位缴纳比例（%）"
+                ></el-input>
+              </el-form-item>
+              <el-button
+                type="default"
+                icon="el-icon-delete"
+                @click.prevent="removeProvidentfundRatio(item)"
+                style="margin-left: 6px"
+              ></el-button>
+            </div>
+            <div>
+              <el-button
+                icon="el-icon-plus"
+                class="addButton"
+                type="primary"
+                @click="addprovidentfundRatio"
+              ></el-button>
+            </div>
+          </el-form-item>
+          <el-form-item label="特殊情况说明：" prop="remark">
+            <el-input
+              type="textarea"
+              v-model="basicform.remark"
+              placeholder="请输入"
               maxlength="200"
             ></el-input>
           </el-form-item>
@@ -233,7 +306,7 @@
     </div>
     <div class="bottom-btn-group">
       <el-button @click="returnServiceNetwork">返回</el-button>
-      <el-button type="primary">提交</el-button>
+      <el-button type="primary" @click="submitSource">提交</el-button>
     </div>
   </div>
 </template>
@@ -253,6 +326,35 @@ export default {
         address: "",
         socialsecurity: "",
         providentfund: "",
+        remark: "",
+        providentfundRatio: [
+          {
+            personnel: "",
+            enterprice: "",
+          },
+        ],
+      },
+      basicformRules: {
+        region: [
+          { required: true, message: "请选择网点地区", trigger: "change" },
+        ],
+        name: [
+          { required: true, message: "网点名称不能为空", trigger: "change" },
+        ],
+        leader: [
+          { required: true, message: "请输入网点负责人", trigger: "blur" },
+          { min: 1, max: 20, message: "长度在1到20个字符", trigger: "blur" },
+        ],
+        address: [
+          { required: true, message: "请输入网点负责人", trigger: "blur" },
+          { min: 1, max: 200, message: "长度在1到200个字符", trigger: "blur" },
+        ],
+        socialsecurity: [
+          { required: true, message: "请输入社保人数", trigger: "blur" },
+        ],
+        providentfund: [
+          { required: true, message: "请输入公积金人数", trigger: "blur" },
+        ],
       },
       regionOptions: [
         {
@@ -432,6 +534,29 @@ export default {
     returnServiceNetwork() {
       this.$router.push("/");
     },
+    submitSource() {
+      // 提交
+      this.$refs.basicform.validate((valid) => {
+        if (valid) {
+          alert("submit!");
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    addprovidentfundRatio() {
+      this.basicform.providentfundRatio.push({
+        personnel: "",
+        enterprice: "",
+      });
+    },
+    removeProvidentfundRatio(item) {
+      var index = this.basicform.providentfundRatio.indexOf(item);
+      if (index !== -1) {
+        this.basicform.providentfundRatio.splice(index, 1);
+      }
+    },
   },
 };
 </script>
@@ -480,5 +605,8 @@ export default {
   display: block;
   margin: 0 auto;
   text-align: center;
+}
+.addButton {
+  width: 100%;
 }
 </style>

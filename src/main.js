@@ -39,6 +39,8 @@ Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$message = Message;
 
+import commonjs from './assets/common'
+Vue.prototype.commonjs = commonjs;
 new Vue({
   router,
   render: h => h(App)

@@ -85,12 +85,10 @@
         </el-collapse-item>
       </el-collapse>
       <div class="policy-info">
-        <el-tabs v-model="activeCard" type="card" @tab-click="cardChange">
+        <el-tabs v-model="activeCard" type="card">
           <el-tab-pane label="正常" name="正常">
             <div class="control-panel">
-              <div>
-                政策信息
-              </div>
+              <div>政策信息</div>
             </div>
             <el-table
               ref="normalPolicyTable"
@@ -98,25 +96,43 @@
               :data="normalPolicyData"
               border
             >
-              <el-table-column label="险种类别" prop="scope.row.category">
+              <el-table-column label="险种类别">
+                <template slot-scope="scope">
+                  {{ getType(scope.row.type) }}
+                </template>
               </el-table-column>
-              <el-table-column label="险种" prop="scope.row.insurance">
+              <el-table-column label="险种" prop="name"> </el-table-column>
+              <el-table-column label="单位部分">
+                <el-table-column
+                  label="基数上限"
+                  prop="enterpriseNumberCeiling"
+                >
+                </el-table-column>
+                <el-table-column label="基数下限" prop="enterpriseNumberFloor">
+                </el-table-column>
+                <el-table-column label="缴纳比例%" prop="enterprisePercent">
+                </el-table-column>
+                <el-table-column label="最低缴费金额" prop="enterpriseMinMoney">
+                </el-table-column>
               </el-table-column>
-              <el-table-column label="单位比例%" prop="scope.row.unitRatio">
+              <el-table-column label="个人部分">
+                <el-table-column label="基数上限" prop="personNumberCeiling">
+                </el-table-column>
+                <el-table-column label="基数下限" prop="personNumberFloor">
+                </el-table-column>
+                <el-table-column label="缴纳比例%" prop="personPercent">
+                </el-table-column>
+                <el-table-column label="最低缴费金额" prop="personMinMoney">
+                </el-table-column>
               </el-table-column>
-              <el-table-column label="个人比例%" prop="scope.row.personalRatio">
+              <el-table-column label="启用月份" prop="startMouth">
               </el-table-column>
-              <el-table-column label="启用月份" prop="scope.row.effectiveTime">
-              </el-table-column>
-              <el-table-column label="备注" prop="scope.row.mark">
-              </el-table-column>
+              <el-table-column label="备注" prop="remark"> </el-table-column>
             </el-table>
           </el-tab-pane>
           <el-tab-pane label="补缴" name="补缴">
             <div class="control-panel">
-              <div>
-                政策信息
-              </div>
+              <div>政策信息</div>
             </div>
             <el-table
               ref="makeupPolicyTable"
@@ -124,30 +140,53 @@
               :data="makeupPolicyData"
               border
             >
-              <el-table-column label="险种类别" porp="scope.row.category">
-              </el-table-column>
-              <el-table-column label="险种" porp="scope.row.insurance">
-              </el-table-column>
-              <el-table-column label="跨周期补缴" porp="scope.row.interCycle">
-              </el-table-column>
-              <el-table-column label="周期起始时间" width="180">
+              <el-table-column label="险种类别">
                 <template slot-scope="scope">
-                  {{ scope.row.cycleStartYear }}{{ scope.row.cycleStartMonth }}月
+                  {{ getType(scope.row.type) }}
                 </template>
               </el-table-column>
-              <el-table-column label="周期截止时间" width="180">
+              <el-table-column label="险种" prop="name"></el-table-column>
+              <el-table-column label="跨周期补缴">
                 <template slot-scope="scope">
-                  {{ scope.row.cycleEndYear }}{{ scope.row.cycleEndMonth }}月
+                  {{ scope.row.isPeriod == "0" ? "允许" : "不允许" }}
                 </template>
               </el-table-column>
-              <el-table-column label="单位比例%" porp="scope.row.unitRatio">
+              <el-table-column label="周期起始时间" width="120">
+                <template slot-scope="scope">
+                  {{ scope.row.peridStartMouth }}
+                </template>
               </el-table-column>
-              <el-table-column label="个人比例%" porp="scope.row.personalRatio">
+              <el-table-column label="周期截止时间" width="120">
+                <template slot-scope="scope">
+                  {{ scope.row.peridEndMouth }}
+                </template>
               </el-table-column>
-              <el-table-column label="启用月份" porp="scope.row.effectiveTime">
+              <el-table-column label="单位部分">
+                <el-table-column
+                  label="基数上限"
+                  prop="enterpriseNumberCeiling"
+                >
+                </el-table-column>
+                <el-table-column label="基数下限" prop="enterpriseNumberFloor">
+                </el-table-column>
+                <el-table-column label="缴纳比例%" prop="enterprisePercent">
+                </el-table-column>
+                <el-table-column label="最低缴费金额" prop="enterpriseMinMoney">
+                </el-table-column>
               </el-table-column>
-              <el-table-column label="备注" porp="scope.row.mark">
+              <el-table-column label="个人部分">
+                <el-table-column label="基数上限" prop="personNumberCeiling">
+                </el-table-column>
+                <el-table-column label="基数下限" prop="personNumberFloor">
+                </el-table-column>
+                <el-table-column label="缴纳比例%" prop="personPercent">
+                </el-table-column>
+                <el-table-column label="最低缴费金额" prop="personMinMoney">
+                </el-table-column>
               </el-table-column>
+              <el-table-column label="启用月份" prop="startMonth">
+              </el-table-column>
+              <el-table-column label="备注" prop="remark"> </el-table-column>
             </el-table>
           </el-tab-pane>
         </el-tabs>
@@ -171,122 +210,66 @@ export default {
         region: "",
         type: "",
         effectiveTime: "",
-        file: "",
       },
-      participateTypeList: [
-        // 根据城市维护的参保类型list
-        {
-          name: "",
-          value: 0,
-        },
-        {
-          name: "",
-          value: 1,
-        },
-      ],
-      regionList: [
-        // 所属地区list
-        {
-          name: "",
-          value: 0,
-        },
-        {
-          name: "",
-          value: 1,
-        },
-      ],
+      participateTypeList: [], // 根据城市维护的参保类型list
+      regionList: [], // 所属地区list
       activeCard: "正常",
-      normalPolicyData: [
-        // 正常--政策信息表
-        {
-          category: "社保",
-          insurance: "",
-          unitRatio: "",
-          peronalRatio: "",
-          effectiveTime: "",
-          mark: "",
-        },
-      ],
-      makeupPolicyData: [
-        // 补缴--政策信息表
-        {
-          category: "社保",
-          insurance: "",
-          interCycle: "不允许",
-          cycleStartYear: "",
-          cycleStartMonth: "",
-          cycleEndYear: "",
-          cycleEndMonth: "",
-          unitRatio: "",
-          peronalRatio: "",
-          effectiveTime: "",
-          mark: "",
-        },
-      ],
+      normalPolicyData: [], // 正常--政策信息表
+      makeupPolicyData: [], // 补缴--政策信息表
     };
   },
   methods: {
-    cardChange(tab, event) {
-      console.log(tab, event);
-    },
-    addNormalPolicyRow() {
-      let normalPolicyData = this.normalPolicyData;
-      if (normalPolicyData == undefined) {
-        normalPolicyData = new Array();
-      }
-      let obj = new Object();
-      obj = {
-        category: "社保",
-        insurance: "",
-        unitRatio: "",
-        peronalRatio: "",
-        effectiveTime: "",
-        mark: "",
-      };
-      normalPolicyData.push(obj);
-      this.normalPolicyData = normalPolicyData;
-    },
-    delNormalPolicy(obj) {
-      // 删除正常政策信息row
-      let index = obj.$index;
-      this.normalPolicyData.splice(index, 1);
-    },
-    addMakeupPolicyRow() {
-      let makeupPolicyData = this.makeupPolicyData;
-      if (makeupPolicyData == undefined) {
-        makeupPolicyData = new Array();
-      }
-      let obj = new Object();
-      obj = {
-        category: "社保",
-        insurance: "",
-        interCycle: "不允许",
-        cycleStartYear: "",
-        cycleStartMonth: "",
-        cycleEndYear: "",
-        cycleEndMonth: "",
-        unitRatio: "",
-        peronalRatio: "",
-        effectiveTime: "",
-        mark: "",
-      };
-      makeupPolicyData.push(obj);
-      this.makeupPolicyData = makeupPolicyData;
-    },
-    delMakeupPolicy(obj) {
-      // 删除正常政策信息row
-      let index = obj.$index;
-      this.makeupPolicyData.splice(index, 1);
-    },
     returnGeneralPolicyList() {
-      this.$router.push("/generalPolicy");
+      this.$router.push("/GeneralPolicy");
     },
-    inputUnitRatio(val, obj) {
-      obj.row.unitRatio = val.replace(/[^\d]/g, "");
+    getType(type) {
+      switch (type) {
+        case "0":
+          return "社保";
+        case "1":
+          return "公积金";
+        case "2":
+          return "自定义险种";
+        default:
+          return "";
+      }
     },
-    inputPersonalRatio(val, obj) {
-      obj.row.personalRatio = val.replace(/[^\d]/g, "");
+    async getPolicy() {
+      let params = {
+        Type: 0, // 0-全部，1-正常，2-补缴
+        PolicyNumbers: this.$route.params.policyNumber,
+      };
+      try {
+        let res = await this.$api.policy.getPolicyByNumber(params);
+        let normalList = [];
+        let unnormalList = [];
+        let policies = [];
+        for (let i in res.data.data) {
+          policies.push(res.data.data[i]);
+        }
+        for (let j of policies[0]) {
+          if (j.isNormal) {
+            normalList.push(j);
+          } else {
+            unnormalList.push(j);
+          }
+        }
+        this.normalPolicyData = normalList;
+        this.makeupPolicyData = unnormalList;
+      } catch (e) {
+        console.log(e);
+      }
     },
+  },
+  mounted() {
+    let pm = this.$route.params;
+    (this.basicInfoForm = {
+      policyName: pm.policyName,
+      region: pm.district,
+      type: pm.insuranceType,
+      effectiveTime: pm.startMonth,
+    }),
+      this.getPolicy();
   },
 };
 </script>

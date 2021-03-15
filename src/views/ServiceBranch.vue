@@ -1,5 +1,5 @@
 <template>
-  <div id="ServiceNetwork">
+  <div id="ServiceBranch">
     <div class="page-header">
       <p class="page-path">
         服务网点管理<span class="slashline">/</span>小库网点列表
@@ -22,7 +22,7 @@
         <el-button @click="resetFilter">重置</el-button>
       </div>
       <div class="op-row">
-        <el-button type="primary" icon="el-icon-plus" @click="AddNetwork"
+        <el-button type="primary" icon="el-icon-plus" @click="AddBranch"
           >新建</el-button
         >
         <el-button type="primary" plain @click="aprovedAudit"
@@ -81,7 +81,7 @@
 
 <script>
 export default {
-  name: "ServiceNetwork",
+  name: "ServiceBranch",
   components: {},
   data: function () {
     return {
@@ -169,8 +169,8 @@ export default {
       // 当前页码改变
       console.log(currentPage);
     },
-    AddNetwork() {
-      this.$router.push("/AddNetwork");
+    AddBranch() {
+      this.$router.push("/AddBranch");
     },
   },
 };
@@ -179,7 +179,7 @@ export default {
 
 <style src="@/assets/public.css"></style>
 <style scoped>
-#ServiceNetwork {
+#ServiceBranch {
   padding: 20px;
 }
 .op-row {

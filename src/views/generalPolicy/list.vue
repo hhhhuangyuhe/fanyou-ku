@@ -18,12 +18,12 @@
       >
         <el-row :gutter="16">
           <el-col :span="4">
-            <el-form-item label="名称：">
+            <el-form-item label="名称：" prop="name">
               <el-input v-model="filters.name" placeholder="请输入"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="编号：">
+            <el-form-item label="编号：" prop="number">
               <el-input
                 v-model="filters.number"
                 placeholder="请输入"
@@ -31,15 +31,19 @@
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="所属地区：">
-              <el-cascader
-                v-model="filters.region"
-                :options="regionOptions"
-              ></el-cascader>
+            <el-form-item label="所属地区：" prop="region">
+              <el-select v-model="filters.region" placeholder="请选择">
+                <el-option
+                  :label="item"
+                  :value="item"
+                  v-for="(item, index) in regionList"
+                  :key="index"
+                ></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="searchPolicyList">查询</el-button>
             <el-button type="default" @click="resetForm('filtersform')"
               >重置</el-button
             >
@@ -74,13 +78,15 @@
         <el-table-column label="政策编号" prop="policyNumber">
         </el-table-column>
         <el-table-column label="政策名称" prop="policyName"> </el-table-column>
-        <el-table-column label="所属地区" prop="region"> </el-table-column>
-        <el-table-column label="参保类型" prop="type"> </el-table-column>
-        <el-table-column label="状态" prop="status"> </el-table-column>
-        <el-table-column
-          label="生效月份"
-          prop="effectiveTime"
-        ></el-table-column>
+        <el-table-column label="所属地区" prop="district"> </el-table-column>
+        <el-table-column label="参保类型" prop="insuranceType">
+        </el-table-column>
+        <el-table-column label="状态">
+          <template slot-scope="scope">
+            {{ getStatus(scope.row.status) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="生效月份" prop="startMonth"></el-table-column>
         <el-table-column label="更新时间" prop="updateTime"></el-table-column>
         <el-table-column label="政策详情">
           <template slot-scope="scope">
@@ -94,7 +100,7 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :total="1000"
+        :total="totalCount"
         layout="prev, pager, next, sizes, jumper"
       >
       </el-pagination>
@@ -114,27 +120,27 @@ export default {
       Kutabs: [
         {
           name: "全部",
-          num: 356,
+          num: 0,
         },
         {
           name: "待审核",
-          num: 24,
+          num: 0,
         },
         {
           name: "审核通过",
-          num: 24,
+          num: 0,
         },
         {
           name: "审核不通过",
-          num: 12,
+          num: 0,
         },
         {
           name: "未提交",
-          num: 23,
+          num: 0,
         },
         {
           name: "已撤回",
-          num: 44,
+          num: 0,
         },
       ],
       filters: {
@@ -142,158 +148,70 @@ export default {
         number: "",
         region: "",
       },
-      regionOptions: [
-        // 所属地区
-        {
-          value: "北京市",
-          label: "北京市",
-          children: [
-            {
-              value: "朝阳区",
-              label: "朝阳区",
-            },
-            {
-              value: "海淀区",
-              label: "海淀区",
-            },
-          ],
-        },
-        {
-          value: "深圳市",
-          label: "深圳市",
-          children: [
-            {
-              value: "南山区",
-              label: "南山区",
-            },
-            {
-              value: "福田区",
-              label: "福田区",
-            },
-          ],
-        },
-        {
-          value: "上海市",
-          label: "上海市",
-          children: [
-            {
-              value: "静安区",
-              label: "静安区",
-            },
-            {
-              value: "浦东新区",
-              label: "浦东新区",
-            },
-          ],
-        },
-        {
-          value: "杭州市",
-          label: "杭州市",
-          children: [
-            {
-              value: "江干区",
-              label: "江干区",
-            },
-            {
-              value: "滨江区",
-              label: "滨江区",
-            },
-          ],
-        },
-        {
-          value: "成都市",
-          label: "成都市",
-          children: [
-            {
-              value: "高新区",
-              label: "高新区",
-            },
-          ],
-        },
-        {
-          value: "广州市",
-          label: "广州市",
-          children: [
-            {
-              value: "天河区",
-              label: "天河区",
-            },
-          ],
-        },
-      ],
-      policyData: [
-        // 表数据
-        {
-          policyNumber: "311232342",
-          policyName: "深户一档21",
-          region: "深圳市南山区",
-          type: "社保",
-          status: "待审核",
-          effectiveTime: "2021-01",
-          updateTime: "2021-01",
-        },
-        {
-          policyNumber: "311232342",
-          policyName: "深户一档21",
-          region: "深圳市南山区",
-          type: "社保",
-          status: "审核通过",
-          effectiveTime: "2021-01",
-          updateTime: "2021-01",
-        },
-        {
-          policyNumber: "311232342",
-          policyName: "深户一档21",
-          region: "深圳市南山区",
-          type: "社保",
-          status: "审核不通过",
-          effectiveTime: "2021-01",
-          updateTime: "2021-01",
-        },
-        {
-          policyNumber: "311232342",
-          policyName: "深户一档21",
-          region: "深圳市南山区",
-          type: "社保",
-          status: "未提交",
-          effectiveTime: "2021-01",
-          updateTime: "2021-01",
-        },
-        {
-          policyNumber: "311232342",
-          policyName: "深户一档21",
-          region: "深圳市南山区",
-          type: "社保",
-          status: "已撤回",
-          effectiveTime: "2021-01",
-          updateTime: "2021-01",
-        },
-      ],
+      regionList: [],
+      policyData: [],
+      totalCount: 0,
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   methods: {
     tabChanged(params) {
-      // 标签页切换
-      console.log(params);
+      if (params.name == "全部") {
+        this.activeKutab = -1;
+      } else if (params.name == "待审核") {
+        this.activeKutab = 1;
+      } else if (params.name == "审核通过") {
+        this.activeKutab = 2;
+      } else if (params.name == "审核不通过") {
+        this.activeKutab = 3;
+      } else if (params.name == "未提交") {
+        this.activeKutab = 0;
+      } else if (params.name == "已撤回") {
+        this.activeKutab = 4;
+      } else {
+        this.activeKutab = -1;
+      }
+      this.searchPolicyList();
+    },
+    getStatus(status) {
+      switch (status) {
+        case 0:
+          return "未提交";
+        case 1:
+          return "待审核";
+        case 2:
+          return "审核通过";
+        case 3:
+          return "审核不通过";
+        case 4:
+          return "已撤回";
+      }
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
     goPolicyDetail(row) {
       // 查看政策详情
-      console.log(row);
       this.$router.push({
-        path: "/generalPolicy/detail",
-        params: row,
+        name: "GeneralPolicyDetail",
+        params: {
+          policyNumber: row.policyNumber,
+          policyName: row.policyName,
+          district: row.district,
+          insuranceType: row.insuranceType,
+          startMonth: row.startMonth,
+          rowDetail: row,
+        },
       });
     },
     handleSizeChange(pageSize) {
       // 每页条数改变
-      console.log(pageSize);
+      this.pageSize = pageSize;
     },
     handleCurrentChange(currentPage) {
       // 当前页码改变
-      console.log(currentPage);
+      this.currentPage = currentPage;
     },
     editData() {
       // 编辑操作
@@ -314,9 +232,16 @@ export default {
         });
         return;
       }
+      let row = selection[0];
       this.$router.push({
-        path: "/generalPolicy/edit",
-        params: selection,
+        name: "GeneralPolicyEdit",
+        params: {
+          policyNumber: row.policyNumber,
+          policyName: row.policyName,
+          district: row.district,
+          insuranceType: row.insuranceType,
+          startMonth: row.startMonth,
+        },
       });
     },
     delData() {
@@ -344,9 +269,19 @@ export default {
           return;
         }
       }
-      // api
+      this.$confirm("是否确认删除?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // api--Delete
+          this.Delete(selection);
+        })
+        .catch(() => {});
     },
     submitReview() {
+      // 状态；0-未提交，1-待审核，2-审核通过，3-审核不通过，4-已撤回
       // 提交审核
       let selection = this.$refs.generalPolicyTable.selection;
       if (selection == undefined || selection.length <= 0) {
@@ -358,7 +293,7 @@ export default {
         return;
       }
       for (let item of selection) {
-        if (item.status != "未提交") {
+        if (item.status != 0) {
           this.$message({
             message: "请选择“未提交”状态的数据进行处理",
             type: "error",
@@ -367,7 +302,16 @@ export default {
           return;
         }
       }
-      // api
+      this.$confirm("是否确认提交审核?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // api--Operate
+          this.Operate(0, selection);
+        })
+        .catch(() => {});
     },
     reviewPassed() {
       // 审核通过
@@ -381,7 +325,7 @@ export default {
         return;
       }
       for (let item of selection) {
-        if (item.status != "待审核") {
+        if (item.status != 1) {
           this.$message({
             message: "请选择“待审核”状态的数据进行处理",
             type: "error",
@@ -390,7 +334,16 @@ export default {
           return;
         }
       }
-      // api
+      this.$confirm("是否确认审核通过?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // api--Operate
+          this.Operate(1, selection);
+        })
+        .catch(() => {});
     },
     reviewRejected() {
       // 审核拒绝
@@ -404,7 +357,7 @@ export default {
         return;
       }
       for (let item of selection) {
-        if (item.status != "待审核") {
+        if (item.status != 1) {
           this.$message({
             message: "请选择“待审核”状态的数据进行处理",
             type: "error",
@@ -413,7 +366,16 @@ export default {
           return;
         }
       }
-      // api
+      this.$confirm("是否确认拒绝审核?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // api--Operate
+          this.Operate(2, selection);
+        })
+        .catch(() => {});
     },
     withdraw() {
       // 撤回
@@ -427,7 +389,7 @@ export default {
         return;
       }
       for (let item of selection) {
-        if (item.status != "待审核") {
+        if (item.status != 1) {
           this.$message({
             message: "请选择“待审核”状态的数据进行处理",
             type: "error",
@@ -436,20 +398,132 @@ export default {
           return;
         }
       }
-      // api
+      this.$confirm("是否确认撤回?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          // api--Operate
+          this.Operate(3, selection);
+        })
+        .catch(() => {});
     },
-    async testApi() {
-      // 这里用try catch包裹，请求失败的时候就执行catch里的
+    async Operate(operateType, selection) {
+      let data = [];
+      for (let i of selection) {
+        data.push(i.policyNumber);
+      }
+      let params = {
+        type: operateType,
+      };
       try {
-        let res = await this.$api.NewsIndexData.NewsIndexData();
-        console.log(res);
+        let res = await this.$api.policy.operate(data, params);
+        if (res.code == 200) {
+          this.$message({
+            message: "操作成功！",
+            type: "success",
+          });
+          this.getPolicyList();
+        } else {
+          this.$message.error("操作失败！");
+        }
+      } catch (e) {
+        console.log(e);
+        this.$message.error("操作失败！");
+      }
+    },
+    async Delete(selection) {
+      let params = [];
+      for (let i of selection) {
+        params.push(i.policyNumber);
+      }
+      try {
+        let res = await this.$api.policy.delete(params);
+        if (res.code == 200) {
+          this.$message({
+            message: "操作成功！",
+            type: "success",
+          });
+          this.getPolicyList();
+        } else {
+          this.$message.error("操作失败！");
+        }
+      } catch (e) {
+        console.log(e);
+        this.$message.error("操作失败！");
+      }
+    },
+    searchPolicyList() {
+      this.currentPage = 1;
+      this.pageSize = 10;
+      this.getPolicyList();
+    },
+    async getPolicyList() {
+      let params = {
+        Type: 0, // 通用0，单位1
+        Name: this.filters.name,
+        PolicyNumber: this.filters.number,
+        District: this.filters.region,
+        PageCount: this.currentPage,
+        TakeCount: this.pageSize,
+      };
+      if (this.activeKutab != -1) {
+        params.Status = this.activeKutab;
+      }
+      try {
+        let res = await this.$api.policy.policyList(params);
+        this.totalCount = res.totalCount;
+        this.policyData = res.item;
+        this.Kutabs = [
+          {
+            name: "全部",
+            num:
+              res.waitVerifyCount +
+              res.verifySuccessCount +
+              res.verifyFailCount +
+              res.noSubmitCount +
+              res.recallCount,
+          },
+          {
+            name: "待审核",
+            num: res.waitVerifyCount,
+          },
+          {
+            name: "审核通过",
+            num: res.verifySuccessCount,
+          },
+          {
+            name: "审核不通过",
+            num: res.verifyFailCount,
+          },
+          {
+            name: "未提交",
+            num: res.noSubmitCount,
+          },
+          {
+            name: "已撤回",
+            num: res.recallCount,
+          },
+        ];
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getDistrict() {
+      try {
+        let res = await this.$api.policy.getDistrict({ enterpriseName: " " });
+        if (res.code == 200) {
+          this.regionList = res.data;
+        }
       } catch (e) {
         console.log(e);
       }
     },
   },
   mounted() {
-    this.testApi();
+    this.getPolicyList();
+    this.getDistrict();
   },
 };
 </script>

@@ -165,6 +165,7 @@
       title="办理失败"
       :visible.sync="BusinessFailedDialog"
       width="500px"
+      @close="resetForm('BusinessFailedForm')"
     >
       <el-form
         :model="BusinessFailedForm"
@@ -203,6 +204,7 @@
       title="取消办理"
       :visible.sync="BusinessCancelDialog"
       width="500px"
+      @close="resetForm('BusinessCancelForm')"
     >
       <el-form
         :model="BusinessCancelForm"
@@ -313,6 +315,7 @@
       title="在保人员信息"
       :visible.sync="InsuranceMemberInfo"
       width="750px"
+      @close="InsuranceMemberInfoTableData = []"
     >
       <el-table
         ref="InsuranceMemberInfoTable"
@@ -352,6 +355,7 @@
       title="资料邮寄往来"
       :visible.sync="InformationMailingDialog"
       width="500px"
+      @close="InformationMailingDetail = []"
     >
       <div class="mailDetailInfo">
         <div
@@ -373,7 +377,7 @@
             <el-timeline-item
               v-for="(activity, index) in item.tracksJson"
               :key="index"
-              :timestamp="dateFtt('yyyy-MM-dd hh:mm', new Date(activity.time))"
+              :timestamp="commonjs.dateFtt('yyyy-MM-dd hh:mm', new Date(activity.time))"
             >
               {{ activity.station }}
             </el-timeline-item>
@@ -381,8 +385,19 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="InformationMailingDialog = false">取 消</el-button>
-        <el-button type="primary" @click="InformationMailingDialog = false"
+        <el-button
+          @click="
+            InformationMailingDialog = false;
+            InformationMailingDetail = [];
+          "
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="
+            InformationMailingDialog = false;
+            InformationMailingDetail = [];
+          "
           >确 定</el-button
         >
       </div>
@@ -425,6 +440,7 @@ export default {
           num: 44,
         },
       ],
+      activeKutab: -1,
       filters: {
         accountName: "",
         applyCode: "",
@@ -490,11 +506,25 @@ export default {
   },
   methods: {
     tabChanged(params) {
-      console.log(params);
+      if (params.name == "全部") {
+        this.activeKutab = -1;
+      } else if (params.name == "待受理") {
+        this.activeKutab = 0;
+      } else if (params.name == "办理中") {
+        this.activeKutab = 1;
+      } else if (params.name == "办理成功") {
+        this.activeKutab = 2;
+      } else if (params.name == "办理失败") {
+        this.activeKutab = 3;
+      } else if (params.name == "已取消") {
+        this.activeKutab = 4;
+      } else {
+        this.activeKutab = -1;
+      }
+      this.searchAccount();
     },
     AccountOpeningPersonnelInformation(row) {
       // 开户人员信息
-      console.log(row);
       this.InsuranceMemberInfo = true;
       this.getPesonals(row.id);
     },
@@ -504,7 +534,6 @@ export default {
     },
     InformationMailing(row) {
       // 资料邮寄往来
-      console.log(row);
       this.InformationMailingDialog = true;
       this.getLogistics(row.id);
     },
@@ -569,10 +598,6 @@ export default {
             ids.push(i.id);
           }
           this.updateStatus(ids, 1);
-          this.$message({
-            type: "success",
-            message: "受理成功!",
-          });
         })
         .catch(() => {});
     },
@@ -589,7 +614,7 @@ export default {
       }
       for (let item of selection) {
         // 判断选中的数据状态是否全是'办理中'
-        if (item.status != "办理中") {
+        if (item.status != 1) {
           this.$message({
             message: "请选择“办理中”状态的数据进行处理",
             type: "error",
@@ -610,10 +635,6 @@ export default {
             ids.push(i.id);
           }
           this.updateStatus(ids, 2);
-          this.$message({
-            type: "success",
-            message: "办理成功!",
-          });
         })
         .catch(() => {});
     },
@@ -628,17 +649,9 @@ export default {
         });
         return;
       }
-      if (selection == undefined || selection.length > 1) {
-        this.$message({
-          message: "请选择1条需要处理的数据",
-          type: "warning",
-          showClose: true,
-        });
-        return;
-      }
       for (let item of selection) {
         // 判断选中的数据状态是否全是'待受理'
-        if (item.status != "办理中") {
+        if (item.status != 1) {
           this.$message({
             message: "请选择“办理中”状态的数据进行处理",
             type: "error",
@@ -653,9 +666,13 @@ export default {
       // 提交“办理失败”弹窗表格
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          let selection = this.$refs.openAccountTable.selection;
+          let ids = [];
+          for (let i of selection) {
+            ids.push(i.id);
+          }
           // api --> 办理失败
-          this.updateStatus(this.$refs.openAccountTableData.selection[0].id, 3);
-          this.BusinessFailedDialog = false;
+          this.updateStatus(ids, 3);
         } else {
           console.log("error submit!!");
           return false;
@@ -665,6 +682,7 @@ export default {
     BusinessCancel() {
       // 取消办理
       let selection = this.$refs.openAccountTable.selection;
+      console.log(this.$refs.openAccountTable.selection);
       if (selection == undefined || selection.length <= 0) {
         this.$message({
           message: "请选择需要处理的数据",
@@ -675,7 +693,7 @@ export default {
       }
       for (let item of selection) {
         // 判断选中的数据状态是否全是“待受理”和“办理中”
-        if (item.status != "待受理" && item.status != "办理中") {
+        if (item.status != 0 && item.status != 1) {
           this.$message({
             message: "请选择“待受理” 或“办理中”状态的数据进行处理",
             type: "error",
@@ -690,8 +708,13 @@ export default {
       // 提交“取消办理”弹窗表格
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          let selection = this.$refs.openAccountTable.selection;
+          let ids = [];
+          for (let i of selection) {
+            ids.push(i.id);
+          }
           // api --> 取消办理
-          this.BusinessCancelDialog = false;
+          this.updateStatus(ids, 4);
         } else {
           console.log("error submit!!");
           return false;
@@ -725,7 +748,6 @@ export default {
         if (valid) {
           // api --> 资料回寄
           this.logistic();
-          // this.MailMaterialDialog = false;
         } else {
           console.log("error submit!!");
           return false;
@@ -742,6 +764,9 @@ export default {
         PageCount: this.currentPage,
         TakeCount: this.pageSize,
       };
+      if (this.activeKutab != -1) {
+        params.Status = this.activeKutab;
+      }
       try {
         let res = await this.$api.accounts.accounts(params);
         this.totalCount = res.totalCount;
@@ -774,38 +799,98 @@ export default {
     },
     async logistic() {
       let selection = this.$refs.openAccountTable.selection;
-      let params = {
-        file: this.MailMaterialForm.file,
-        EntrustId: selection[0].id,
-        Name: this.MailMaterialForm.recipientName,
-        Phone: this.MailMaterialForm.recipientPhone,
-        Address: this.MailMaterialForm.address,
-        TrackingNo: this.MailMaterialForm.returnNoteNumber,
-      };
+      let params = new FormData();
+      params.append("file", this.MailMaterialForm.file);
+      params.append("AccountId", selection[0].id);
+      params.append("Name", this.MailMaterialForm.recipientName);
+      params.append("Phone", this.MailMaterialForm.recipientPhone);
+      params.append("Address", this.MailMaterialForm.address);
+      params.append("TrackingNo", this.MailMaterialForm.returnNoteNumber);
+      // let params = {
+      //   file: this.MailMaterialForm.file,
+      //   AccountId: selection[0].id,
+      //   Name: this.MailMaterialForm.recipientName,
+      //   Phone: this.MailMaterialForm.recipientPhone,
+      //   Address: this.MailMaterialForm.address,
+      //   TrackingNo: this.MailMaterialForm.returnNoteNumber,
+      // };
       try {
         let res = await this.$api.accounts.logistic(params);
-        console.log(res);
+        if (res) {
+          this.$message({
+            message: "回寄成功",
+            type: "success",
+          });
+        }
+        this.MailMaterialDialog = false;
       } catch (e) {
         console.log(e);
+        this.$message.error("回寄失败");
+        this.MailMaterialDialog = false;
       }
     },
     async updateStatus(ids, status) {
       let failReason = "";
+      if (status == 4) {
+        failReason =
+          this.BusinessCancelForm.cancelReason +
+          "," +
+          this.BusinessCancelForm.cancelDescribe;
+      } else if (status == 3) {
+        failReason =
+          this.BusinessFailedForm.failReason +
+          "," +
+          this.BusinessFailedForm.failDescribe;
+      }
       let params = {
-        IstId: ids,
+        lstId: ids,
         status: status,
         failResson: failReason,
       };
       try {
         let res = await this.$api.accounts.status(params);
-        console.log(res);
+        if (res) {
+          if (status == 1) {
+            this.$message({
+              type: "success",
+              message: "受理成功!",
+            });
+          } else if (status == 2) {
+            this.$message({
+              type: "success",
+              message: "办理成功!",
+            });
+          } else if (status == 3) {
+            this.$message({
+              type: "success",
+              message: "操作成功!",
+            });
+            this.$refs["BusinessFailedForm"].resetFields();
+            this.BusinessFailedDialog = false;
+          } else if (status == 4) {
+            this.$message({
+              type: "success",
+              message: "已取消办理!",
+            });
+            this.$refs["BusinessCancelForm"].resetFields();
+            this.BusinessCancelDialog = false;
+          }
+          this.updateTableData();
+        }
       } catch (e) {
         console.log(e);
+        this.$message.error("操作失败！");
       }
     },
     searchAccount() {
       this.currentPage = 1;
       this.pageSize = 10;
+      this.getAccounts();
+    },
+    updateTableData() {
+      this.currentPage = 1;
+      this.pageSize = 10;
+      this.$refs["filtersform"].resetFields();
       this.getAccounts();
     },
     uploadMailFile() {
@@ -815,6 +900,7 @@ export default {
     getUploadMailFile(event) {
       let files = event.target.files;
       this.MailMaterialForm.fileName = files[0].name;
+      this.MailMaterialForm.file = files[0];
     },
     delUploadFile() {
       this.MailMaterialForm.fileName = "";
@@ -830,32 +916,7 @@ export default {
         fileName: "",
         file: "",
       };
-    },
-    dateFtt(fmt, date) {
-      var o = {
-        "M+": date.getMonth() + 1, //月份
-        "d+": date.getDate(), //日
-        "h+": date.getHours(), //小时
-        "m+": date.getMinutes(), //分
-        "s+": date.getSeconds(), //秒
-        "q+": Math.floor((date.getMonth() + 3) / 3), //季度
-        S: date.getMilliseconds(), //毫秒
-      };
-      if (/(y+)/.test(fmt))
-        fmt = fmt.replace(
-          RegExp.$1,
-          (date.getFullYear() + "").substr(4 - RegExp.$1.length)
-        );
-      for (var k in o)
-        if (new RegExp("(" + k + ")").test(fmt))
-          fmt = fmt.replace(
-            RegExp.$1,
-            RegExp.$1.length == 1
-              ? o[k]
-              : ("00" + o[k]).substr(("" + o[k]).length)
-          );
-      return fmt;
-    },
+    }
   },
   mounted() {
     this.getAccounts();

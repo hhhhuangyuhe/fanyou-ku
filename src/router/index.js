@@ -1,69 +1,84 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ServiceNetwork from '../views/ServiceNetwork.vue'
-import AddNetwork from '../views/AddNetwork.vue'
+import ServiceBranch from '../views/ServiceBranch.vue'
+import AddBranch from '../views/AddBranch.vue'
 import OpenAccount from '../views/OpenAccount.vue'
-import GeneralPolicyList from '../views/generalPolicy/list.vue'
-import GeneralPolicyAdd from '../views/generalPolicy/add.vue'
-import GeneralPolicyDetail from '../views/generalPolicy/detail.vue'
-import GeneralPolicyEdit from '../views/generalPolicy/edit.vue'
-import UnitPolicyList from '../views/unitPolicy/list.vue'
-import UnitPolicyAdd from '../views/unitPolicy/add.vue'
-import UnitPolicyDetail from '../views/unitPolicy/detail.vue'
-import UnitPolicyEdit from '../views/unitPolicy/edit.vue'
+import GeneralPolicyList from '../views/GeneralPolicy/List.vue'
+import GeneralPolicyAdd from '../views/GeneralPolicy/Add.vue'
+import GeneralPolicyDetail from '../views/GeneralPolicy/Detail.vue'
+import GeneralPolicyEdit from '../views/GeneralPolicy/Edit.vue'
+import UnitPolicyList from '../views/UnitPolicy/List.vue'
+import UnitPolicyAdd from '../views/UnitPolicy/Add.vue'
+import UnitPolicyDetail from '../views/UnitPolicy/Detail.vue'
+import UnitPolicyEdit from '../views/UnitPolicy/Edit.vue'
 import BusinessAcceptance from '../views/BusinessAcceptance.vue'
+import OrderFeedback from '../views/OrderFeedback.vue'
+import InsuredEmployees from '../views/InsuredEmployees.vue'
+import HostingApplyList from '../views/Hosting/ApplyList.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'ServiceNetwork',
-    component: ServiceNetwork
+    name: 'ServiceBranch',
+    component: ServiceBranch
   }, {
-    path: '/AddNetwork',
-    name: 'AddNetwork',
-    component: AddNetwork
+    path: '/AddBranch',
+    name: 'AddBranch',
+    component: AddBranch
   }, {
     path: '/OpenAccount',
     name: 'OpenAccount',
     component: OpenAccount
   }, {
-    path: '/generalPolicy',
+    path: '/GeneralPolicy',
     name: 'GeneralPolicyList',
     component: GeneralPolicyList
   }, {
-    path: '/generalPolicy/add',
+    path: '/GeneralPolicyAdd',
     name: 'GeneralPolicyAdd',
     component: GeneralPolicyAdd
   }, {
-    path: '/generalPolicy/detail',
+    path: '/GeneralPolicyDetail',
     name: 'GeneralPolicyDetail',
     component: GeneralPolicyDetail
   }, {
-    path: '/generalPolicy/edit',
+    path: '/GeneralPolicyEdit',
     name: 'GeneralPolicyEdit',
     component: GeneralPolicyEdit
   }, {
-    path: '/unitPolicy',
+    path: '/UnitPolicy',
     name: 'UnitPolicyList',
     component: UnitPolicyList
   }, {
-    path: '/unitPolicy/add',
-    name: 'unitPolicy',
+    path: '/UnitPolicyAdd',
+    name: 'UnitPolicy',
     component: UnitPolicyAdd
   }, {
-    path: '/unitPolicy/detail',
+    path: '/UnitPolicyDetail',
     name: 'UnitPolicyDetail',
     component: UnitPolicyDetail
   }, {
-    path: '/unitPolicy/edit',
+    path: '/UnitPolicyEdit',
     name: 'UnitPolicyEdit',
     component: UnitPolicyEdit
   }, {
     path: '/BusinessAcceptance',
     name: 'BusinessAcceptance',
     component: BusinessAcceptance
+  }, {
+    path: '/OrderFeedback',
+    name: 'OrderFeedback',
+    component: OrderFeedback
+  }, {
+    path: '/InsuredEmployees',
+    name: 'InsuredEmployees',
+    component: InsuredEmployees
+  }, {
+    path: '/Hosting/ApplyList',
+    name: 'HostingApplyList',
+    component: HostingApplyList
   },
 ]
 
