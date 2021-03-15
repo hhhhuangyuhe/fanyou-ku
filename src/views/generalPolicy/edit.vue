@@ -152,7 +152,7 @@
                   <el-select
                     v-model="scope.row.name"
                     placeholder="请选择"
-                    v-if="scope.row.type == '2'"
+                    v-if="scope.row.type == '1'"
                   >
                     <el-option label="公积金" value="公积金"></el-option>
                   </el-select>
@@ -347,46 +347,52 @@
               </el-table-column>
               <el-table-column label="周期起始时间" width="188">
                 <template slot-scope="scope">
-                  <el-select
-                    v-model="scope.row.cycleStartYear"
-                    placeholder="请选择"
-                    style="width: 90px"
-                  >
-                    <el-option label="上年" value="上年"></el-option>
-                    <el-option label="当年" value="当年"></el-option>
-                  </el-select>
-                  <el-input-number
-                    v-model="scope.row.cycleStartMonth"
-                    controls-position="right"
-                    :precision="0"
-                    :min="1"
-                    :max="12"
-                    style="width: 50px; margin-left: 6px"
-                    :controls="false"
-                  ></el-input-number>
-                  月
+                  <div v-if="scope.row.isPeriod == 1">
+                    <el-select
+                      v-model="scope.row.cycleStartYear"
+                      placeholder="请选择"
+                      style="width: 90px"
+                    >
+                      <el-option label="上年" value="上年"></el-option>
+                      <el-option label="当年" value="当年"></el-option>
+                    </el-select>
+                    <el-input-number
+                      v-model="scope.row.cycleStartMonth"
+                      controls-position="right"
+                      :precision="0"
+                      :min="1"
+                      :max="12"
+                      style="width: 50px; margin-left: 6px"
+                      :controls="false"
+                    ></el-input-number>
+                    月
+                  </div>
+                  <div v-if="scope.row.isPeriod == 0">不限</div>
                 </template>
               </el-table-column>
               <el-table-column label="周期截止时间" width="188">
                 <template slot-scope="scope">
-                  <el-select
-                    v-model="scope.row.cycleEndYear"
-                    placeholder="请选择"
-                    style="width: 90px"
-                  >
-                    <el-option label="上年" value="上年"></el-option>
-                    <el-option label="当年" value="当年"></el-option>
-                  </el-select>
-                  <el-input-number
-                    v-model="scope.row.cycleEndMonth"
-                    controls-position="right"
-                    :precision="0"
-                    :min="1"
-                    :max="12"
-                    style="width: 50px; margin-left: 6px"
-                    :controls="false"
-                  ></el-input-number>
-                  月
+                  <div v-if="scope.row.isPeriod == 1">
+                    <el-select
+                      v-model="scope.row.cycleEndYear"
+                      placeholder="请选择"
+                      style="width: 90px"
+                    >
+                      <el-option label="上年" value="上年"></el-option>
+                      <el-option label="当年" value="当年"></el-option>
+                    </el-select>
+                    <el-input-number
+                      v-model="scope.row.cycleEndMonth"
+                      controls-position="right"
+                      :precision="0"
+                      :min="1"
+                      :max="12"
+                      style="width: 50px; margin-left: 6px"
+                      :controls="false"
+                    ></el-input-number>
+                    月
+                  </div>
+                  <div v-if="scope.row.isPeriod == 0">不限</div>
                 </template>
               </el-table-column>
               <el-table-column label="单位部分">
@@ -491,7 +497,9 @@
       </div>
       <div class="bottom-btn-group">
         <el-button @click="returnGeneralPolicyList">取消</el-button>
-        <el-button type="primary" @click="savePolicy">保存</el-button>
+        <el-button type="primary" @click="savePolicy" :loading="savingPolicy"
+          >保存</el-button
+        >
       </div>
     </div>
   </div>
@@ -516,6 +524,7 @@ export default {
       activeCard: "正常",
       normalPolicyData: [], // 正常--政策信息表
       makeupPolicyData: [], // 补缴--政策信息表
+      savingPolicy: false,
     };
   },
   methods: {
@@ -550,13 +559,19 @@ export default {
       obj = {
         type: "0",
         name: "",
-        interCycle: "不允许",
+        isPeriod: "0",
         cycleStartYear: "",
         cycleStartMonth: "",
         cycleEndYear: "",
         cycleEndMonth: "",
-        unitRatio: "",
-        peronalRatio: "",
+        enterpriseMinMoney: "",
+        enterpriseNumberCeiling: "",
+        enterpriseNumberFloor: "",
+        enterprisePercent: "",
+        personMinMoney: "",
+        personNumberCeiling: "",
+        personNumberFloor: "",
+        personPercent: "",
         effectiveTime: "",
         remark: "",
       };
@@ -569,13 +584,7 @@ export default {
       this.makeupPolicyData.splice(index, 1);
     },
     returnGeneralPolicyList() {
-      this.$router.push("/generalPolicy");
-    },
-    inputUnitRatio(val, obj) {
-      obj.row.unitRatio = val.replace(/[^\d]/g, "");
-    },
-    inputPersonalRatio(val, obj) {
-      obj.row.personalRatio = val.replace(/[^\d]/g, "");
+      this.$router.push("/GeneralPolicy");
     },
     normalCategoryChange(val, row, index) {
       this.$set(this.normalPolicyData[index], "name", "");
@@ -631,10 +640,14 @@ export default {
           }
         }
         unnormalList.forEach((item) => {
-          item.cycleStartYear = item.peridStartMonth.substring(0, 2);
-          item.cycleStartMonth = item.peridStartMonth.substring(2, 3);
-          item.cycleEndYear = item.peridEndMonth.substring(0, 2);
-          item.cycleEndMonth = item.peridEndMonth.substring(2, 3);
+          item.cycleStartYear =
+            item.isPeriod == 0 ? "当年" : item.peridStartMonth.substring(0, 2);
+          item.cycleStartMonth =
+            item.isPeriod == 0 ? 1 : item.peridStartMonth.substring(2, 3);
+          item.cycleEndYear =
+            item.isPeriod == 0 ? " " : item.peridEndMonth.substring(0, 2);
+          item.cycleEndMonth =
+            item.isPeriod == 0 ? 1 : item.peridEndMonth.substring(2, 3);
         });
         this.normalPolicyData = normalList;
         this.makeupPolicyData = unnormalList;
@@ -644,9 +657,53 @@ export default {
     },
     async savePolicy() {
       let row = this.$route.params.rowDetail;
+      let policyNormalDetails = this.normalPolicyData;
+      let policyRepairDetails = this.makeupPolicyData;
+      let newpolicyNormalDetails = [];
+      let newpolicyRepairDetails = [];
+      policyNormalDetails.forEach((item) => {
+        if (item.type == "0") {
+          item.type = "社保";
+        } else if (item.type == "1") {
+          item.type = "公积金";
+        } else {
+          item.type = "自定义险种";
+        }
+        let policyNormalDetailObj = {};
+        for (let key in item) {
+          if (key != "policyDetailId") {
+            policyNormalDetailObj[key] = item[key];
+          }
+        }
+        newpolicyNormalDetails.push(policyNormalDetailObj);
+      });
+      policyRepairDetails.forEach((item) => {
+        if (item.type == "0") {
+          item.type = "社保";
+        } else if (item.type == "1") {
+          item.type = "公积金";
+        } else {
+          item.type = "自定义险种";
+        }
+        item.peridStartMonth =
+          item.isPeriod == 0
+            ? "不限"
+            : item.cycleStartYear + item.cycleStartMonth + "月";
+        item.peridEndMonth =
+          item.isPeriod == 0
+            ? "不限"
+            : item.cycleEndYear + item.cycleEndMonth + "月";
+        let policyRepairDetailObj = {};
+        for (let key in item) {
+          if (key != "policyDetailId") {
+            policyRepairDetailObj[key] = item[key];
+          }
+        }
+        newpolicyRepairDetails.push(policyRepairDetailObj);
+      });
       let params = {
         policy: {
-          // policyId: "",
+          policyId: row.policyId,
           policyNumber: row.policyNumber,
           enterpriseId: row.enterpriseId,
           enterpriseName: row.enterpriseName,
@@ -658,15 +715,28 @@ export default {
           updateTime: new Date(),
           source: 0, // 0通用1单位
           // description: "",
-          // attachAddress: "",
+          // attachAddress: "", // 上传协议文件API返回的地址
         },
-        policyNormalDetails: this.normalPolicyData,
-        policyRepairDetails: this.makeupPolicyData,
+        policyNormalDetails: newpolicyNormalDetails,
+        policyRepairDetails: newpolicyRepairDetails,
       };
+      this.savingPolicy = true;
       try {
-        await this.$api.policy.savePolicy(params);
+        let res = await this.$api.policy.savePolicy(params);
+        if (res.code == 200) {
+          this.$message({
+            message: "保存成功",
+            type: "success",
+          });
+          this.savingPolicy = false;
+          this.returnGeneralPolicyList();
+        } else {
+          this.$message.error(res.msg);
+        }
       } catch (e) {
         console.log(e);
+        this.$message.error("保存失败！");
+        this.savingPolicy = false;
       }
     },
   },
