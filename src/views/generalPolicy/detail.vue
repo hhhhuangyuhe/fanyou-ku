@@ -184,7 +184,7 @@
                 <el-table-column label="最低缴费金额" prop="personMinMoney">
                 </el-table-column>
               </el-table-column>
-              <el-table-column label="启用月份" prop="startMonth">
+              <el-table-column label="启用月份" prop="startMouth">
               </el-table-column>
               <el-table-column label="备注" prop="remark"> </el-table-column>
             </el-table>

@@ -241,7 +241,7 @@
                 <template slot-scope="scope">
                   <el-date-picker
                     :editable="false"
-                    v-model="scope.row.effectiveTime"
+                    v-model="scope.row.startMouth"
                     type="month"
                     placeholder="请选择"
                     style="width: 110px"
@@ -465,7 +465,7 @@
                 <template slot-scope="scope">
                   <el-date-picker
                     :editable="false"
-                    v-model="scope.row.effectiveTime"
+                    v-model="scope.row.startMouth"
                     type="month"
                     placeholder="请选择"
                     style="width: 110px"
@@ -637,21 +637,22 @@ export default {
       }
     },
     async savePolicy() {
+      let row = this.$route.params.rowDetail;
       let params = {
         policy: {
-          policyId: "",
-          policyNumber: "",
-          enterpriseId: "",
-          enterpriseName: "",
-          policyName: "",
-          district: "",
-          insuranceType: "",
-          status: "",
-          startMonth: "",
-          updateTime: "",
-          source: "",
-          description: "",
-          attachAddress: "",
+          // policyId: "",
+          policyNumber: row.policyNumber,
+          enterpriseId: row.enterpriseId,
+          enterpriseName: row.enterpriseName,
+          policyName: row.policyName,
+          district: row.district,
+          insuranceType: row.insuranceType,
+          // status: "",
+          startMonth: this.basicInfoForm.effectiveTime,
+          updateTime: new Date(),
+          source: 0, // 0通用1单位
+          // description: "",
+          // attachAddress: "",
         },
         policyNormalDetails: this.normalPolicyData,
         policyRepairDetails: this.makeupPolicyData,
