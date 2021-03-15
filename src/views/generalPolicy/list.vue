@@ -241,6 +241,7 @@ export default {
           district: row.district,
           insuranceType: row.insuranceType,
           startMonth: row.startMonth,
+          rowDetail: row,
         },
       });
     },

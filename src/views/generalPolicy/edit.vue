@@ -630,6 +630,12 @@ export default {
             unnormalList.push(j);
           }
         }
+        unnormalList.forEach((item) => {
+          item.cycleStartYear = item.peridStartMonth.substring(0, 2);
+          item.cycleStartMonth = item.peridStartMonth.substring(2, 3);
+          item.cycleEndYear = item.peridEndMonth.substring(0, 2);
+          item.cycleEndMonth = item.peridEndMonth.substring(2, 3);
+        });
         this.normalPolicyData = normalList;
         this.makeupPolicyData = unnormalList;
       } catch (e) {
